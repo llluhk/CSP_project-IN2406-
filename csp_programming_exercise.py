@@ -601,12 +601,14 @@ class Constraint:
     def __repr__(self):
         return self.condition.__name__ + str(self.scope)
 
-    def holds(self, assignment):
+    def holds(self, assignment):# assignment is a parameter which is passed in from outside when I call holds(). It contains values by using search
+        # algorithm.
         """Returns the value of Constraint con evaluated in assignment.
 
         precondition: all variables are assigned in assignment
         """
-        return self.condition(*tuple(assignment[v] for v in self.scope))
+        return self.condition(*tuple(assignment[v] for v in self.scope))#This line checks the variables of each constraint and retrieve the 
+    #values from assignment to check if the value from assignment satisfy the constraint. 
 
 
 def all_diff(*values):
@@ -672,7 +674,7 @@ def no_heuristic(to_do):
     return to_do
 
 
-def sat_up(to_do):
+def sat_up(to_do):# least-constraining-value heuristics
     return SortedSet(to_do, key=lambda t: 1 / len([var for var in t[1].scope]))
 
 
@@ -686,6 +688,8 @@ class ACSolver:
         self.csp = csp
 
     def GAC(self, orig_domains=None, to_do=None, arc_heuristic=sat_up):
+        # Generalized Arc Consistency can be used with any number of variables. AC-3 is a specific 
+        # algorithm for achieving arc consistency on binary CSPs.
         """Makes this CSP arc-consistent using Generalized Arc Consistency
         orig_domains is the original domains
         to_do is a set of (variable,constraint) pairs
@@ -780,6 +784,7 @@ def partition_domain(dom):
 
 
 class ACSearchSolver(search.Problem):
+    # combining the arc-consistency inference with the search algorithm
     """A search problem with arc consistency and domain splitting
     A node is a CSP """
 
@@ -822,7 +827,8 @@ def ac_search_solver(csp, arc_heuristic=sat_up):
     from search import depth_first_tree_search
     solution = None
     try:
-        solution = depth_first_tree_search(ACSearchSolver(csp, arc_heuristic=arc_heuristic)).state
+        solution = depth_first_tree_search(ACSearchSolver(csp, arc_heuristic=arc_heuristic)).state #call depth-first-tree-search with generalized
+        #arc consistency inference with least-constraining-value heuristic
     except:
         return solution
     if solution:
